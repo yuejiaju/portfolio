@@ -1,5 +1,6 @@
 preview-*.png
 release-media/
+quality-media/
 dist/
 node_modules/
 .env

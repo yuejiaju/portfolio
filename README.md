@@ -10,7 +10,9 @@
 
 - 网页与图片：Cloudflare Pages（Git 集成）
 - 原片视频：GitHub Release `media-v1`
-- 视频播放：Pages Function `/media/*` 代理 Release 原片，支持 Range 拖动
+- 视频播放：Pages Function `/media/*` 代理 Release 视频，支持 Range 拖动
+- 清晰度：高清（默认）、流畅、原画；切换时保留播放进度
+- 播放器：隐藏下载入口并禁用视频右键菜单
 - 页面构建：`build.mjs` 输出到 `dist`
 
 ## 自动部署
@@ -43,7 +45,15 @@ publish.cmd
 
 ## 视频更新
 
-视频不进入 Git 仓库。替换 `media-v1` Release 中的同名资源即可；页面视频地址保持 `/media/<文件名>`。
+视频不进入 Git 仓库。每个视频在 `media-v1` Release 中包含三个文件：
+
+```text
+<原文件名>.mp4        # 原画
+<原文件名>-hd.mp4     # 高清，默认
+<原文件名>-sd.mp4     # 流畅
+```
+
+替换同名资源即可；页面视频地址保持 `/media/<文件名>`。
 
 ## 构建
 

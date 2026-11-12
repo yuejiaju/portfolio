@@ -14,6 +14,79 @@
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const revealElements = Array.from(document.querySelectorAll(".reveal"));
 
+  const QUALITY_SUFFIX = { hd: "-hd", sd: "-sd", original: "" };
+  let preferredQuality = window.matchMedia("(max-width: 640px)").matches
+    ? "sd"
+    : "hd";
+
+  function getQualitySource(source, quality = preferredQuality) {
+    if (!source) return source;
+    return source.replace(
+      /\.mp4(\?.*)?$/i,
+      `${QUALITY_SUFFIX[quality] ?? ""}.mp4$1`
+    );
+  }
+
+  function setPreferredQuality(quality) {
+    preferredQuality = quality;
+    document.querySelectorAll(".quality-control__select").forEach((select) => {
+      select.value = quality;
+    });
+  }
+
+  function bindQualitySelect(select, onChange) {
+    if (!select) return;
+
+    select.value = preferredQuality;
+    select.addEventListener("change", () => {
+      setPreferredQuality(select.value);
+      onChange(select.value);
+    });
+  }
+
+  function loadVideoSource(video, source, options = {}) {
+    const { poster, resume = false, play = false } = options;
+    const currentTime = resume ? video.currentTime : 0;
+    const shouldPlay = resume ? !video.paused : play;
+
+    if (poster !== undefined) {
+      video.poster = poster;
+    }
+
+    const restore = () => {
+      video.removeEventListener("loadedmetadata", restore);
+      if (currentTime > 0 && Number.isFinite(video.duration)) {
+        try {
+          video.currentTime = Math.min(
+            currentTime,
+            Math.max(0, video.duration - 0.15)
+          );
+        } catch {
+          // Ignore seek errors on sources that cannot seek yet.
+        }
+      }
+      if (shouldPlay) {
+        const playAttempt = video.play();
+        if (playAttempt && typeof playAttempt.catch === "function") {
+          playAttempt.catch(() => {
+            // Native controls remain available if playback is blocked.
+          });
+        }
+      }
+    };
+
+    video.addEventListener("loadedmetadata", restore);
+    video.src = source;
+    video.load();
+  }
+
+  document.querySelectorAll("video").forEach((video) => {
+    video.setAttribute("controlsList", "nodownload");
+    video.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+    });
+  });
+
   let menuOpen = false;
   let scrollTicking = false;
 
@@ -184,8 +257,10 @@
   const dramaModalIndex = document.getElementById("drama-modal-index");
   const dramaModalType = document.getElementById("drama-modal-type");
   const dramaModalClose = document.querySelector(".drama-modal__close");
+  const dramaQuality = document.getElementById("drama-quality");
   const dramaCards = Array.from(document.querySelectorAll(".drama-card"));
   let lastDramaCard = null;
+  let dramaBaseSource = "";
 
   if (dramaModal && dramaModalVideo && dramaModalIndex && dramaModalType && dramaModalClose) {
     dramaCards.forEach((card) => {
@@ -198,10 +273,11 @@
         }
 
         lastDramaCard = card;
+        dramaBaseSource = videoSource;
         dramaModalIndex.textContent = card.dataset.index || "01";
         dramaModalType.textContent = card.dataset.type || "";
         dramaModalVideo.poster = poster || "";
-        dramaModalVideo.src = videoSource;
+        dramaModalVideo.src = getQualitySource(videoSource);
         dramaModalVideo.load();
         document.body.classList.add("drama-modal-open");
 
@@ -237,6 +313,15 @@
 
     dramaModalClose.addEventListener("click", () => {
       dramaModal.close();
+    });
+
+    bindQualitySelect(dramaQuality, (quality) => {
+      if (!dramaBaseSource) return;
+      loadVideoSource(
+        dramaModalVideo,
+        getQualitySource(dramaBaseSource, quality),
+        { resume: true }
+      );
     });
 
     dramaModal.addEventListener("click", (event) => {
@@ -403,6 +488,7 @@
 
   const gamePlayer = document.querySelector(".game-player");
   const gameVideo = document.getElementById("game-video");
+  const gameQuality = document.getElementById("game-quality");
   const gameCuts = Array.from(document.querySelectorAll(".game-cut"));
   const gameCutIndex = document.getElementById("game-cut-index");
   const gamePlayCut = document.getElementById("game-play-cut");
@@ -420,6 +506,17 @@
     gameCurrentTitle &&
     gameCurrentDuration
   ) {
+    let gameBaseSource =
+      gameVideo.dataset.baseSrc || gameVideo.getAttribute("src") || "";
+
+    if (gameBaseSource) {
+      const initialSource = getQualitySource(gameBaseSource);
+      if (gameVideo.getAttribute("src") !== initialSource) {
+        gameVideo.src = initialSource;
+        gameVideo.load();
+      }
+    }
+
     function playGameVideo() {
       const playAttempt = gameVideo.play();
       if (playAttempt && typeof playAttempt.catch === "function") {
@@ -451,10 +548,12 @@
       gameCurrentDuration.textContent = cut.dataset.duration || "";
       gamePlayButton.setAttribute("aria-label", `播放王国纪元${title}`);
       gameVideo.setAttribute("aria-label", `播放王国纪元${title}`);
+      gameBaseSource = source;
 
-      if (gameVideo.getAttribute("src") !== source) {
+      const nextSource = getQualitySource(source);
+      if (gameVideo.getAttribute("src") !== nextSource) {
         gameVideo.pause();
-        gameVideo.src = source;
+        gameVideo.src = nextSource;
         if (poster) {
           gameVideo.poster = poster;
         }
@@ -474,6 +573,15 @@
 
     gamePlayButton.addEventListener("click", playGameVideo);
 
+    bindQualitySelect(gameQuality, (quality) => {
+      if (!gameBaseSource) return;
+      loadVideoSource(
+        gameVideo,
+        getQualitySource(gameBaseSource, quality),
+        { resume: true }
+      );
+    });
+
     gameVideo.addEventListener("play", () => {
       gamePlayer.classList.add("is-playing");
     });
@@ -492,6 +600,7 @@
   const productAdGroups = Array.from(document.querySelectorAll("[data-series-group]"));
   const productAdPlayer = document.querySelector(".product-ads-player");
   const productAdMainVideo = document.getElementById("product-ad-main-video");
+  const productAdQuality = document.getElementById("product-ad-quality");
   const productAdPlayButton = document.getElementById("product-ad-play-button");
   const productAdCutIndex = document.getElementById("product-ad-cut-index");
   const productAdPlayCut = document.getElementById("product-ad-play-cut");
@@ -510,6 +619,19 @@
     productAdCurrentTitle &&
     productAdCurrentDuration
   ) {
+    let productAdBaseSource =
+      productAdMainVideo.dataset.baseSrc ||
+      productAdMainVideo.getAttribute("src") ||
+      "";
+
+    if (productAdBaseSource) {
+      const initialSource = getQualitySource(productAdBaseSource);
+      if (productAdMainVideo.getAttribute("src") !== initialSource) {
+        productAdMainVideo.src = initialSource;
+        productAdMainVideo.load();
+      }
+    }
+
     function playProductAd() {
       const playAttempt = productAdMainVideo.play();
       if (playAttempt && typeof playAttempt.catch === "function") {
@@ -565,10 +687,12 @@
       productAdCurrentDuration.textContent = duration;
       productAdPlayButton.setAttribute("aria-label", `播放${shortSeries}广告 ${index}`);
       productAdMainVideo.setAttribute("aria-label", `播放${shortSeries}广告 ${index}`);
+      productAdBaseSource = source;
 
-      if (productAdMainVideo.getAttribute("src") !== source) {
+      const nextSource = getQualitySource(source);
+      if (productAdMainVideo.getAttribute("src") !== nextSource) {
         productAdMainVideo.pause();
-        productAdMainVideo.src = source;
+        productAdMainVideo.src = nextSource;
         if (poster) {
           productAdMainVideo.poster = poster;
         }
@@ -605,6 +729,15 @@
     });
 
     productAdPlayButton.addEventListener("click", playProductAd);
+
+    bindQualitySelect(productAdQuality, (quality) => {
+      if (!productAdBaseSource) return;
+      loadVideoSource(
+        productAdMainVideo,
+        getQualitySource(productAdBaseSource, quality),
+        { resume: true }
+      );
+    });
 
     productAdMainVideo.addEventListener("play", () => {
       productAdPlayer.classList.add("is-playing");

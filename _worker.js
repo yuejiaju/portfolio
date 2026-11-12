@@ -19,6 +19,12 @@ const VIDEO_FILES = new Set([
   "cleaning-03.mp4"
 ]);
 
+function isAllowedVideo(file) {
+  if (VIDEO_FILES.has(file)) return true;
+  const original = file.replace(/-(?:hd|sd)\.mp4$/i, ".mp4");
+  return original !== file && VIDEO_FILES.has(original);
+}
+
 function corsHeaders() {
   return {
     "Access-Control-Allow-Origin": "*",
@@ -48,7 +54,7 @@ async function handleMedia(request) {
   const url = new URL(request.url);
   const file = decodeURIComponent(url.pathname.replace(/^\/media\/?/, ""));
 
-  if (!VIDEO_FILES.has(file)) return notFound();
+  if (!isAllowedVideo(file)) return notFound();
 
   const upstreamHeaders = new Headers();
   const range = request.headers.get("Range");

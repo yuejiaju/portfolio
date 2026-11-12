@@ -664,10 +664,10 @@
             <div class="game-player reveal">
               <div class="game-player__chrome">
                 <span>BUY-VOLUME / CUT <b id="game-cut-index">01</b></span>
-                <span>9:16 / ORIGINAL</span>
+                <span>9:16 / VERTICAL</span>
               </div>
               <div class="game-player__screen">
-                <video class="game-player__video" id="game-video" src="assets/game-ads/game-ad-01.mp4" poster="assets/game-ads/poster-01.jpg" controls playsinline preload="metadata" aria-label="播放王国纪元买量素材 01">
+                <video class="game-player__video" id="game-video" data-base-src="assets/game-ads/game-ad-01.mp4" poster="assets/game-ads/poster-01.jpg" controls controlsList="nodownload" playsinline preload="none" aria-label="播放王国纪元买量素材 01">
                   你的浏览器不支持视频播放。
                 </video>
                 <button class="game-player__play" id="game-play-button" type="button" aria-label="播放王国纪元买量素材 01">
@@ -677,6 +677,14 @@
               </div>
               <div class="game-player__foot" aria-live="polite">
                 <span id="game-current-title">买量素材 01</span>
+                <label class="quality-control">
+                  <span class="quality-control__label">清晰度</span>
+                  <select class="quality-control__select" id="game-quality" aria-label="选择游戏广告清晰度">
+                    <option value="hd">高清</option>
+                    <option value="sd">流畅</option>
+                    <option value="original">原画</option>
+                  </select>
+                </label>
                 <span id="game-current-duration">00:20</span>
               </div>
             </div>
@@ -758,10 +766,10 @@
             <div class="game-player product-ads-player reveal">
               <div class="game-player__chrome">
                 <span>PRODUCT ADS / CUT <b id="product-ad-cut-index">01</b></span>
-                <span>9:16 / ORIGINAL</span>
+                <span>9:16 / VERTICAL</span>
               </div>
               <div class="game-player__screen">
-                <video class="game-player__video" id="product-ad-main-video" src="assets/product-ads/renovation-01.mp4" poster="assets/product-ads/renovation-01.jpg" controls playsinline preload="metadata" aria-label="播放 snapRenov 装修广告 01">
+                <video class="game-player__video" id="product-ad-main-video" data-base-src="assets/product-ads/renovation-01.mp4" poster="assets/product-ads/renovation-01.jpg" controls controlsList="nodownload" playsinline preload="none" aria-label="播放 snapRenov 装修广告 01">
                   你的浏览器不支持视频播放。
                 </video>
                 <button class="game-player__play" id="product-ad-play-button" type="button" aria-label="播放 snapRenov 装修广告 01">
@@ -771,6 +779,14 @@
               </div>
               <div class="game-player__foot" aria-live="polite">
                 <span id="product-ad-current-title">snapRenov · 装修 01</span>
+                <label class="quality-control">
+                  <span class="quality-control__label">清晰度</span>
+                  <select class="quality-control__select" id="product-ad-quality" aria-label="选择产品广告清晰度">
+                    <option value="hd">高清</option>
+                    <option value="sd">流畅</option>
+                    <option value="original">原画</option>
+                  </select>
+                </label>
                 <span id="product-ad-current-duration">00:16</span>
               </div>
             </div>
@@ -982,12 +998,22 @@
     <div class="drama-modal__panel">
       <div class="drama-modal__head">
         <p class="drama-modal__title" id="drama-modal-title">代表短剧视频 <span id="drama-modal-index">01</span> <i>/</i> 06 <span class="drama-modal__type" id="drama-modal-type">海外真人横屏</span></p>
-        <button class="drama-modal__close" type="button" aria-label="关闭视频">
-          关闭
-          <span aria-hidden="true">×</span>
-        </button>
+        <div class="drama-modal__actions">
+          <label class="quality-control">
+            <span class="quality-control__label">清晰度</span>
+            <select class="quality-control__select" id="drama-quality" aria-label="选择短剧清晰度">
+              <option value="hd">高清</option>
+              <option value="sd">流畅</option>
+              <option value="original">原画</option>
+            </select>
+          </label>
+          <button class="drama-modal__close" type="button" aria-label="关闭视频">
+            关闭
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
       </div>
-      <video class="drama-modal__video" id="drama-modal-video" controls playsinline preload="none">
+      <video class="drama-modal__video" id="drama-modal-video" controls controlsList="nodownload" playsinline preload="none">
         你的浏览器不支持视频播放。
       </video>
     </div>
