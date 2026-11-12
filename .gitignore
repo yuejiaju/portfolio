@@ -10,3 +10,4 @@ assets/**/*.mov
 .wrangler/
 .DS_Store
 Thumbs.db
+debug.log
