@@ -4,11 +4,13 @@ import { fileURLToPath } from "node:url";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.join(root, "dist");
-const mediaBase = (process.env.MEDIA_BASE_URL || "").trim().replace(/\/+$/, "");
+const mediaBase = (process.env.MEDIA_BASE_URL || "/media")
+  .trim()
+  .replace(/\/+$/, "");
 
-if (!/^https?:\/\//i.test(mediaBase)) {
+if (!/^(https?:\/\/|\/)/i.test(mediaBase)) {
   throw new Error(
-    "Missing MEDIA_BASE_URL. Set it to the public R2 bucket URL, for example https://pub-xxxxxxxx.r2.dev"
+    "MEDIA_BASE_URL must be an absolute URL or a root-relative path such as /media."
   );
 }
 
@@ -25,7 +27,14 @@ fs.cpSync(path.join(root, "assets"), path.join(dist, "assets"), {
   filter: skipAsset,
 });
 
-for (const file of ["styles.css", "script.js", "robots.txt", "_headers"]) {
+for (const file of [
+  "styles.css",
+  "script.js",
+  "robots.txt",
+  "_headers",
+  "_worker.js",
+  "_routes.json"
+]) {
   const source = path.join(root, file);
   if (fs.existsSync(source)) {
     fs.copyFileSync(source, path.join(dist, file));
@@ -37,9 +46,9 @@ let rewritten = 0;
 
 html = html.replace(
   /assets\/(videos|game-ads|product-ads)\/([A-Za-z0-9._-]+\.mp4)/g,
-  (_match, folder, file) => {
+  (_match, _folder, file) => {
     rewritten += 1;
-    return `${mediaBase}/${folder}/${file}`;
+    return `${mediaBase}/${file}`;
   }
 );
 
@@ -55,4 +64,4 @@ fs.writeFileSync(path.join(dist, "index.html"), html, "utf8");
 
 console.log(`Built ${dist}`);
 console.log(`Rewrote ${rewritten} video references to ${mediaBase}`);
-console.log("Large video files were not copied into dist; upload them to R2 separately.");
+console.log("Large video files were not copied into dist; upload them to the GitHub release separately.");
