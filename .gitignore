@@ -1,4 +1,5 @@
 preview-*.png
+release-media/
 dist/
 node_modules/
 .env
@@ -11,3 +12,4 @@ assets/**/*.mov
 .DS_Store
 Thumbs.db
 debug.log
+.chrome-*

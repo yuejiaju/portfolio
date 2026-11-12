@@ -3631,6 +3631,7 @@ body.drama-modal-open {
   display: block;
   width: auto;
   height: auto;
+  min-height: clamp(220px, 34svh, 480px);
   max-width: min(1080px, calc(94vw - 2px));
   max-height: calc(100svh - 100px);
   margin: 0 auto;
