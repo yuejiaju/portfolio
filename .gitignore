@@ -1,0 +1,12 @@
+preview-*.png
+dist/
+node_modules/
+.env
+.env.*
+assets/**/*.mp4
+assets/**/*.mov
+*.mp4
+*.mov
+.wrangler/
+.DS_Store
+Thumbs.db
