@@ -28,10 +28,10 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host "Publishing to Cloudflare Pages..."
-& $wrangler pages deploy dist --project-name yuejiaju-portfolio --branch main
+& $wrangler pages deploy dist --project-name yuejiaju-portfolio-live --branch main
 if ($LASTEXITCODE -ne 0) {
   throw "Deployment failed."
 }
 
 Write-Host ""
-Write-Host "Published: https://yuejiaju-portfolio.pages.dev/"
+Write-Host "Published: https://yuejiaju-portfolio-live.pages.dev/"
